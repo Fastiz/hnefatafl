@@ -1,0 +1,16 @@
+version: '3.7'
+
+services:
+
+  react-nginx:
+    build:
+      context: ./react
+      dockerfile: Dockerfile
+    ports:
+      - '80:80'
+  express:
+    build:
+      context: ./express
+      dockerfile: Dockerfile
+    ports:
+    - '8080:8080'
