@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "outDir": "dist",
+    "sourceMap": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "../../../../.cache/JetBrains/IntelliJIdea2020.3/javascript/typings/node/14.14.24/node_modules/@types/node/globals.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
