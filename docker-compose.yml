@@ -7,7 +7,7 @@ services:
       context: ./react
       dockerfile: Dockerfile
     ports:
-      - '3000:80'
+      - '80:80'
   express:
     build:
       context: ./express
