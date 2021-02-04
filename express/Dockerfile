@@ -1,7 +1,8 @@
 FROM node:alpine
 WORKDIR /usr/express
 COPY package.json .
-RUN npm install
+RUN npm install\
+    && npm i -g typescript
 COPY . .
-RUN tsc
-CMD ["node", "./dist/server.js"]
+RUN tsc ./src/main.ts
+CMD ["node", "./dist/main.js"]
