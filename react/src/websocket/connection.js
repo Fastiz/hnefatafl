@@ -18,19 +18,23 @@ class Connection {
 
         config(this.socket);
 
-        this.socket.on('connect', () => {
-            console.log('connected');
+        this.connectSubject = new Subject();
+
+        this.connectSubject = this.configureSubject('connect');
+
+        this.disconnectSubject = this.configureSubject('disconnect');
+
+        this.messageSubject = this.configureSubject('*');
+    }
+
+    configureSubject(eventName){
+        const sub = new Subject();
+
+        this.socket.on(eventName, (event, data) => {
+            sub.next({event, data})
         });
 
-        this.socket.on('disconnect', () => {
-            console.log('disconnect');
-        });
-
-        this.messageSubject = new Subject();
-
-        this.socket.on('*', (event, data) => {
-            this.messageSubject.next({event, data})
-        });
+        return sub;
     }
 
     sendMessage({event, data}){
@@ -39,6 +43,14 @@ class Connection {
 
     getMessageSubject(){
         return this.messageSubject;
+    }
+
+    getConnectSubject(){
+        return this.connectSubject;
+    }
+
+    getDisconnectSubject(){
+        return this.disconnectSubject;
     }
 }
 

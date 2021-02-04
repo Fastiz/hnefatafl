@@ -4,6 +4,7 @@ import {TEAM} from "../../reducers/game/backend/constants";
 import {useSelector} from "react-redux";
 import _ from 'lodash';
 import Chat from "./board/chat/Chat";
+import ConnectionStatus from "../../components/ConnectionStatus";
 
 const WhiteText = styled.span`
     color: white;
@@ -67,6 +68,7 @@ function Match({className}){
     } = useSelector(mapState);
 
     return <Background className={className}>
+        <ConnectionStatus/>
         <InfoDiv>
             <h2>You are team {teamToComponent(playerTeam)}</h2>
             {
