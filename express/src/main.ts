@@ -6,7 +6,7 @@ const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server, {
     cors: {
-        origin: "http:/64.227.1.4:3000",
+        origin: "http://64.227.1.4",
     }
 });
 
