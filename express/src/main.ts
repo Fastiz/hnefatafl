@@ -5,13 +5,7 @@ import {MESSAGES} from "./game/constants";
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
-export const io = require('socket.io')(server, {
-    cors: {
-        origin: "http://64.227.1.4",
-        // origin: "http://localhost:3000"
-        // origin: "http://192.168.1.55:3000"
-    }
-});
+export const io = require('socket.io')(server);
 
 const connectionManager = new ConnectionManager();
 

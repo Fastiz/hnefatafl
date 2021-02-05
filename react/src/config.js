@@ -1,1 +1,1 @@
-export const WS_HOST = 'ws://64.227.1.4:8080';
+export const WS_HOST = 'wss://api.hnefatafl.fastiz.dev';
