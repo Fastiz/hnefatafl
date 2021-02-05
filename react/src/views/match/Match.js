@@ -5,7 +5,7 @@ import {useDispatch, useSelector} from "react-redux";
 import ConnectionStatus from "../../components/ConnectionStatus";
 import {GAME_STATUS} from "../../reducers/game";
 import {Button} from "antd";
-import {Link} from "react-router-dom";
+import _ from 'lodash'
 import {HOME} from "../../constants/routes";
 import {leaveGame} from "../../actions/game";
 import {Redirect} from "react-router";
