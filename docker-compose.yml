@@ -6,8 +6,9 @@ services:
     build:
       context: ./react
       dockerfile: Dockerfile
-    ports:
-      - '80:80'
+    environment:
+      - LETSENCRYPT_HOST=fastiz.dev
+      - VIRTUAL_HOST=fastiz.dev
   express:
     build:
       context: ./express
