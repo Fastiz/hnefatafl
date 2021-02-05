@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import Piece from "./Piece";
-import {TEAM} from "../../../../reducers/game/backend/constants";
+import {TEAM} from "../../../../backend/constants";
 
 function BlackPeace({className, ...props}){
 

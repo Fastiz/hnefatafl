@@ -1,6 +1,6 @@
 import Board from "./board/Board";
 import styled from "styled-components";
-import {TEAM} from "../../reducers/game/backend/constants";
+import {TEAM} from "../../backend/constants";
 import {useSelector} from "react-redux";
 import _ from 'lodash';
 import Chat from "./board/chat/Chat";

@@ -1,8 +1,8 @@
 import _ from 'lodash';
-import {INITIALIZE, MOVE_PIECE} from "../../actions/game";
-import {TEAM} from "./backend/constants";
-import {areDefendersSurrounded, isKingCaptured, isKingOnBorder, moveCaptures} from "./backend/utils/movement";
-import {movePiece} from "./backend/utils/utils";
+import {INITIALIZE, MOVE_PIECE} from "../actions/game";
+import {TEAM} from "../backend/constants";
+import {areDefendersSurrounded, isKingCaptured, isKingOnBorder, moveCaptures} from "../backend/utils/movement";
+import {movePiece} from "../backend/utils/utils";
 
 const initialState = {
     playerTeam: null,

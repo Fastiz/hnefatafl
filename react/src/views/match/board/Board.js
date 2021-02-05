@@ -5,7 +5,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import {useSelector} from "react-redux";
 import BlackPiece from "./piece/BlackPiece";
 import WhitePiece from "./piece/WhitePiece";
-import {TEAM} from "../../../reducers/game/backend/constants";
+import {TEAM} from "../../../backend/constants";
 import Cell from "./cell/Cell";
 import KingPiece from "./piece/KingPiece";
 
@@ -15,11 +15,8 @@ const mapState = state => state.game;
 
 function Board({className}){
     const {
-        playerTeam,
         board,
-        teamTurn,
         dimension,
-        gameType
     } = useSelector(mapState);
 
     return <DndProvider backend={HTML5Backend}>

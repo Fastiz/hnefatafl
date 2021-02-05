@@ -1,5 +1,5 @@
-import {GAME_TYPE, TEAM} from "../reducers/game/backend/constants";
-import {initialPieces} from "../reducers/game/backend/initialPieces";
+import {GAME_TYPE, TEAM} from "../backend/constants";
+import {initialPieces} from "../backend/initialPieces";
 
 export const INITIALIZE = "INITIALIZE";
 export function initializeGame({gameType, teamTurn, playerTeam}){

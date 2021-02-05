@@ -1,39 +1,50 @@
 import styled from "styled-components";
 import {useDrag} from 'react-dnd';
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import _ from 'lodash';
+import {selectPiece, unselectPiece} from "../../../../actions/board";
 
 const mapState = state => state.game;
 
-function usePieceDrag({position, isKing, team}){
+function usePieceDrag({canDrag, position, isKing, team}){
+    const dispatch = useDispatch();
+
+    return useDrag({
+        item: {
+            type: 'piece',
+        },
+        canDrag: () => canDrag,
+        collect: monitor => ({
+            isDragging: !!monitor.isDragging(),
+        }),
+        begin: () => dispatch(selectPiece({position, isKing, team})),
+        end: () => dispatch(unselectPiece())
+    });
+}
+
+function Piece({className, position, isKing, team, children}){
     const {
         playerTeam,
         teamTurn,
         winner
     } = useSelector(mapState);
 
-    return useDrag({
-        item: {
-            type: 'piece',
-            position: position,
-            isKing,
-            team
-        },
-        canDrag: () => team === playerTeam && teamTurn === playerTeam && _.isNil(winner),
-        collect: monitor => ({
-            isDragging: !!monitor.isDragging(),
-            itemId: monitor.getItem() && monitor.getItem().id
-        })
-    });
-}
+    const dispatch = useDispatch();
 
-function Piece({className, position, isKing, team, children}){
-    const [{isDragging, itemId}, dragRef] = usePieceDrag({position, isKing, team});
+    const canMove = team === playerTeam && teamTurn === playerTeam && _.isNil(winner);
 
-    if(isDragging && itemId === 'piece_' + position)
-        return;
+    const [{isDragging}, dragRef] = usePieceDrag({canDrag: canMove, position, isKing, team});
 
-    return <div className={className} ref={dragRef}>{children}</div>;
+    if(isDragging)
+        return null;
+
+    return <div
+        className={className}
+        ref={dragRef}
+        onClick={() => canMove && dispatch(selectPiece({position, isKing, team}))}
+    >
+        {children}
+    </div>;
 }
 
 export default styled(Piece)`

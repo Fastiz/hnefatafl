@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import Piece from "./Piece";
-import {TEAM} from "../../../../reducers/game/backend/constants";
+import {TEAM} from "../../../../backend/constants";
 
 const CrossDiv = styled.div`
     color: white;
@@ -12,7 +12,7 @@ const CrossDiv = styled.div`
 function KingPiece({className, ...props}){
 
     return <Piece className={className} {...props} team={TEAM.BLACK} isKing={true}>
-        <CrossDiv>+</CrossDiv>
+        <CrossDiv>{/*+*/}</CrossDiv>
     </Piece>;
 }
 
