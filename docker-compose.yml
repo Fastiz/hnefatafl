@@ -9,6 +9,8 @@ services:
     environment:
       - LETSENCRYPT_HOST=fastiz.dev
       - VIRTUAL_HOST=fastiz.dev
+    expose:
+      - 80
   express:
     build:
       context: ./express
