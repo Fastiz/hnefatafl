@@ -8,7 +8,8 @@ export const MESSAGES: {[index: string]: string} = {
     CHAT_MESSAGE: 'chat_message',
     NUMBER_OF_MATCHES: 'number_of_matches',
     NUMBER_OF_PLAYERS: 'number_of_players',
-    CONNECTION_ERROR: 'connection_error'
+    OPPONENT_DISCONNECTED: 'opponent_disconnected',
+    LEAVE_GAME: 'leave_game'
 };
 
 export enum GameType {

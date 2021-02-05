@@ -1,10 +1,14 @@
 import Board from "./board/Board";
 import styled from "styled-components";
 import {TEAM} from "../../backend/constants";
-import {useSelector} from "react-redux";
-import _ from 'lodash';
-import Chat from "./board/chat/Chat";
+import {useDispatch, useSelector} from "react-redux";
 import ConnectionStatus from "../../components/ConnectionStatus";
+import {GAME_STATUS} from "../../reducers/game";
+import {Button} from "antd";
+import {Link} from "react-router-dom";
+import {HOME} from "../../constants/routes";
+import {leaveGame} from "../../actions/game";
+import {Redirect} from "react-router";
 
 const WhiteText = styled.span`
     color: white;
@@ -49,13 +53,49 @@ const Background = styled.div`
     height: 100vh;
     display: grid;
     grid-template-areas: ".     info    ."
-                        ".      board   .";
+                        ".      board   ."
+                        ".      back    .";
     grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 1fr 5fr;
+    grid-template-rows: 1fr 4fr 1fr;
+`;
+
+const BackDiv = styled.div`
+    grid-area: back;
+    
+    display: flex;
+    justify-content: center;
+    width: 100%;
 `;
 
 function teamToComponent(team){
     return team === TEAM.WHITE ? <WhiteText>white</WhiteText> : <BlackText>black</BlackText>;
+}
+
+function GameStatus({gameStatus, teamTurn}){
+    switch(gameStatus){
+        case GAME_STATUS.PLAYING:
+            return <>
+                <h2>It is {teamToComponent(teamTurn)} turn</h2>
+            </>;
+        case GAME_STATUS.KING_CAPTURED:
+            return <>
+                <h2>King was captured! {teamToComponent(TEAM.WHITE)} wins!</h2>
+            </>;
+        case GAME_STATUS.KING_ESCAPED:
+            return <>
+                <h2>King escaped! {teamToComponent(TEAM.BLACK)} wins!</h2>
+            </>;
+        case GAME_STATUS.DEFENDERS_SURROUNDED:
+            return <>
+                <h2>Defenders surrounded! {teamToComponent(TEAM.WHITE)} wins!</h2>
+            </>;
+        case GAME_STATUS.LOST_CONNECTION:
+            return <>
+                <h2>Lost connection with the other player</h2>
+            </>;
+        default:
+            return null;
+    }
 }
 
 const mapState = state => state.game;
@@ -64,31 +104,28 @@ function Match({className}){
     const {
         playerTeam,
         teamTurn,
-        winner
+        gameStatus
     } = useSelector(mapState);
+    const dispatch = useDispatch();
+
+    if(_.isNil(gameStatus)) return <Redirect to={HOME}/>;
 
     return <Background className={className}>
         <ConnectionStatus/>
         <InfoDiv>
             <h2>You are team {teamToComponent(playerTeam)}</h2>
-            {
-                _.isNil(winner) ?
-                    <h2>It is {teamToComponent(teamTurn)} turn</h2>
-                    :
-                    winner === TEAM.BLACK ?
-                        <h2>King escaped! {teamToComponent(winner)} wins!</h2>
-                        :
-                        <h2>King was captured! {teamToComponent(winner)} wins!</h2>
-            }
+
+            <GameStatus gameStatus={gameStatus} teamTurn={teamTurn}/>
         </InfoDiv>
 
         <BoardDiv>
             <Board/>
         </BoardDiv>
 
-        {/*<ChatDiv>*/}
-        {/*    <Chat/>*/}
-        {/*</ChatDiv>*/}
+        <BackDiv>
+            <Button onClick={() => dispatch(leaveGame())}>Leave game</Button>
+        </BackDiv>
+
     </Background>
 }
 

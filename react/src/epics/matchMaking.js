@@ -3,11 +3,11 @@ import {switchMap} from "rxjs/operators";
 import {FIND_MATCH, matchFound, SEND_PIECE_MOVE} from "../actions/matchMaking";
 import {from, of} from "rxjs";
 import Connection from '../websocket/connection';
-import {MATCH} from "../constants/routes";
-import {SM_MATCH_MAKING, SM_MATCH_FOUND, SM_PIECE_MOVED} from '../constants/socketMessages';
+import {HOME, MATCH} from "../constants/routes";
+import {SM_MATCH_MAKING, SM_MATCH_FOUND, SM_PIECE_MOVED, SM_LEAVE_GAME} from '../constants/socketMessages';
 import connection from "../websocket/connection";
 import {byEvent} from "./utils/byEvent";
-import {initializeGame, movePiece} from "../actions/game";
+import {INITIALIZE, initializeGame, LEAVE_GAME, movePiece} from "../actions/game";
 
 const socketMessages$ = connection.getMessageSubject();
 
@@ -23,8 +23,6 @@ const findMatchEpic = action$ => action$.pipe(
 const matchFoundEpic = (action$, state, {history}) => socketMessages$.pipe(
     byEvent(SM_MATCH_FOUND),
     switchMap(message => {
-        history.push(MATCH);
-
         const {
             gameType,
             teamTurn,
@@ -43,6 +41,16 @@ const matchFoundEpic = (action$, state, {history}) => socketMessages$.pipe(
         ]);
     })
 );
+
+const initializeEpic = (action$, state, {history}) =>
+    action$.pipe(
+        ofType(INITIALIZE),
+        switchMap(()=>{
+            history.push(MATCH);
+
+            return of();
+        })
+    );
 
 const pieceMovedEpic = () => socketMessages$.pipe(
     byEvent(SM_PIECE_MOVED),
@@ -64,4 +72,13 @@ const sendPieceMove = action$ => action$.pipe(
     })
 );
 
-export default combineEpics(findMatchEpic, matchFoundEpic, pieceMovedEpic, sendPieceMove);
+const leaveGameEpic = (action$, state, {history}) => action$.pipe(
+    ofType(LEAVE_GAME),
+    switchMap(action => {
+        Connection.sendMessage({event: SM_LEAVE_GAME})
+        history.push(HOME);
+        return of();
+    })
+)
+
+export default combineEpics(findMatchEpic, matchFoundEpic, pieceMovedEpic, sendPieceMove, leaveGameEpic, initializeEpic);

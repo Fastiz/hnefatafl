@@ -1,8 +1,17 @@
 import _ from 'lodash';
-import {INITIALIZE, MOVE_PIECE} from "../actions/game";
+import {INITIALIZE, LEAVE_GAME, LOST_CONNECTION, MOVE_PIECE} from "../actions/game";
 import {TEAM} from "../backend/constants";
 import {areDefendersSurrounded, isKingCaptured, isKingOnBorder, moveCaptures} from "../backend/utils/movement";
 import {movePiece} from "../backend/utils/utils";
+
+export const GAME_STATUS = {
+    ENDED: "ENDED",
+    LOST_CONNECTION: "LOST_CONNECTION",
+    KING_CAPTURED: "KING_CAPTURED",
+    KING_ESCAPED: "KING_ESCAPED",
+    DEFENDERS_SURROUNDED: "DEFENDERS_SURROUNDED",
+    PLAYING: "PLAYING"
+}
 
 const initialState = {
     playerTeam: null,
@@ -10,7 +19,7 @@ const initialState = {
     teamTurn: null,
     dimension: null,
     gameType: null,
-    winner: null,
+    gameStatus: null,
     moveList: []
 }
 
@@ -49,7 +58,8 @@ function gameReducer(state=initialState, action){
     switch (action.type){
         case INITIALIZE:
             return Object.assign(initialState, newState,
-                _.pick(action, ['playerTeam', 'board', 'teamTurn', 'dimension', 'gameType']));
+                _.pick(action, ['playerTeam', 'board', 'teamTurn', 'dimension', 'gameType']),
+                {gameStatus: GAME_STATUS.PLAYING});
         case MOVE_PIECE:
             const {to, from} = action;
 
@@ -61,20 +71,27 @@ function gameReducer(state=initialState, action){
 
             if(movedPiece.getTeam() === TEAM.BLACK){
                 if(isKingOnBorder({board: newState.board})){
-                    Object.assign(result, {winner: TEAM.BLACK});
+                    Object.assign(result, {gameStatus: GAME_STATUS.KING_ESCAPED});
                 }
             }else{
                 if(
-                    isKingCaptured({board: state.board, to}) ||
+                    isKingCaptured({board: state.board, to})
+                ){
+                    Object.assign(result, {gameStatus: GAME_STATUS.KING_CAPTURED});
+                }else if(
                     areDefendersSurrounded({board: newState.board})
                 ){
-                    Object.assign(result, {winner: TEAM.WHITE});
+                    Object.assign(result, {gameStatus: GAME_STATUS.DEFENDERS_SURROUNDED});
                 }
             }
 
             Object.assign(result, {moveList: [...state.moveList, {to, from}]});
 
             return result;
+        case LOST_CONNECTION:
+            return Object.assign({}, newState, {gameStatus: GAME_STATUS.LOST_CONNECTION});
+        case LEAVE_GAME:
+            return Object.assign({}, newState, {gameStatus: null});
         default:
             return newState;
     }

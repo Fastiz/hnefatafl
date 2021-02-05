@@ -9,3 +9,7 @@ export const SM_CHAT_MESSAGE = 'chat_message';
 export const SM_NUMBER_OF_PLAYERS = 'number_of_players';
 
 export const SM_NUMBER_OF_MATCHES = 'number_of_matches';
+
+export const SM_OPPONENT_DISCONNECTED = 'opponent_disconnected';
+
+export const SM_LEAVE_GAME = 'leave_game';

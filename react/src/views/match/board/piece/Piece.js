@@ -3,6 +3,7 @@ import {useDrag} from 'react-dnd';
 import {useDispatch, useSelector} from "react-redux";
 import _ from 'lodash';
 import {selectPiece, unselectPiece} from "../../../../actions/board";
+import {GAME_STATUS} from "../../../../reducers/game";
 
 const mapState = state => state.game;
 
@@ -26,12 +27,15 @@ function Piece({className, position, isKing, team, children}){
     const {
         playerTeam,
         teamTurn,
-        winner
+        winner,
+        gameStatus
     } = useSelector(mapState);
 
     const dispatch = useDispatch();
 
-    const canMove = team === playerTeam && teamTurn === playerTeam && _.isNil(winner);
+    const canMove = team === playerTeam &&
+        teamTurn === playerTeam && _.isNil(winner) &&
+        gameStatus === GAME_STATUS.PLAYING;
 
     const [{isDragging}, dragRef] = usePieceDrag({canDrag: canMove, position, isKing, team});
 

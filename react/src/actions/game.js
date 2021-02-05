@@ -24,3 +24,17 @@ export function movePiece(from, to){
         from, to
     }
 }
+
+export const LOST_CONNECTION = "LOST_CONNECTION";
+export function lostConnection(){
+    return {
+        type: LOST_CONNECTION
+    }
+}
+
+export const LEAVE_GAME = "LEAVE_GAME";
+export function leaveGame(){
+    return {
+        type: LEAVE_GAME
+    }
+}

@@ -1,7 +1,7 @@
-import {merge, Observable, Subject} from "rxjs";
+import {merge, Observable, throwError} from "rxjs";
 import {matchFound, MESSAGES, Team} from "./constants";
 import {Piece, Position} from "./piece";
-import {filter, finalize, takeWhile, tap} from "rxjs/operators";
+import {filter, map, startWith, switchMap, takeWhile, tap} from "rxjs/operators";
 import {pieceMoveFromSocketMessage} from "./operators/pieceMoveFromSocketMessage";
 import {ofEvent} from "./operators/ofEvent";
 import {changeTurn, checkGameState, isMoveValid, movePiece} from "./backend";
@@ -10,6 +10,19 @@ import {chatMessageToSocketMessage, pieceMoveToSocketMessage} from "./utils";
 import {chatMessageFromSocketMessage} from "./operators/chatMessageFromSocketMessage";
 import Room from "../room";
 import {SocketMessage} from "../connection/Connection";
+
+function disconnection(){
+    return function(source){
+        return source.pipe(
+            tap((message: SocketMessage) => {
+                const {event} = message;
+
+                if(event === MESSAGES.LEAVE_GAME)
+                    throw new Error('player left game');
+            })
+        )
+    }
+}
 
 function fromTeam(team: Team){
     return function(source){
@@ -58,9 +71,9 @@ class GameInstance {
 
         this.gameObservable = this.configurePieceMoves(Team.BLACK, Team.WHITE);
 
-        /*this.gameObservable.subscribe({
-            error: err => this.broker.broadcast({event: MESSAGES.CONNECTION_ERROR, data: null})
-        })*/
+        this.gameObservable.subscribe({
+            error: () => this.broker.broadcast({event: MESSAGES.OPPONENT_DISCONNECTED, data: null})
+        })
     }
 
     public getGameObservable() : Observable<PieceMove> {
@@ -71,10 +84,12 @@ class GameInstance {
         return merge(
             this.broker.getPlayer1().getReceive$()
                 .pipe(
-                    fromTeam(team1)
+                    disconnection(),
+                    fromTeam(team1),
                 ),
             this.broker.getPlayer2().getReceive$()
                 .pipe(
+                    disconnection(),
                     fromTeam(team2)
                 ),
         ).pipe(

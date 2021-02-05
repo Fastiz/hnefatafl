@@ -1,4 +1,4 @@
-import {FIND_MATCH} from "../actions/matchMaking";
+import {FIND_MATCH, MATCH_FOUND} from "../actions/matchMaking";
 
 
 const initialState = {
@@ -9,6 +9,8 @@ function reducer(state=initialState, action){
     switch (action.type){
         case FIND_MATCH:
             return Object.assign({}, state, {lookingForMatch: true});
+        case MATCH_FOUND:
+            return Object.assign({}, state, {lookingForMatch: false});
         default:
             return state;
     }
