@@ -5,7 +5,9 @@ import {MESSAGES} from "./game/constants";
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
-export const io = require('socket.io')(server);
+export const io = require('socket.io')(server, {
+    cors: 'https://hnefatafl.fastiz.dev'
+});
 
 const connectionManager = new ConnectionManager();
 
