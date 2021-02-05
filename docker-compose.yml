@@ -19,6 +19,6 @@ services:
     environment:
       - LETSENCRYPT_HOST=api.hnefatafl.fastiz.dev
       - VIRTUAL_HOST=api.hnefatafl.fastiz.dev
-      expose:
-        - "8080"
-      network_mode: jwilder-nginx-proxy_proxy
+    expose:
+      - "8080"
+    network_mode: jwilder-nginx-proxy_proxy
