@@ -1,14 +1,24 @@
-import {Broker} from "../broker";
-import {merge} from "rxjs";
+import {merge, Observable, Subject} from "rxjs";
 import {matchFound, MESSAGES, Team} from "./constants";
 import {Piece, Position} from "./piece";
-import {filter, takeWhile} from "rxjs/operators";
+import {filter, finalize, takeWhile, tap} from "rxjs/operators";
 import {pieceMoveFromSocketMessage} from "./operators/pieceMoveFromSocketMessage";
 import {ofEvent} from "./operators/ofEvent";
 import {changeTurn, checkGameState, isMoveValid, movePiece} from "./backend";
 import {initialPieces} from "./initialPieces";
 import {chatMessageToSocketMessage, pieceMoveToSocketMessage} from "./utils";
 import {chatMessageFromSocketMessage} from "./operators/chatMessageFromSocketMessage";
+import Room from "../room";
+import {SocketMessage} from "../connection/Connection";
+
+function fromTeam(team: Team){
+    return function(source){
+        return source.pipe(
+            ofEvent(MESSAGES.PIECE_MOVED),
+            pieceMoveFromSocketMessage(team)
+        )
+    }
+}
 
 export enum GameStatus {
     Playing             = "PLAYING",
@@ -29,45 +39,45 @@ export interface ChatMessage {
     message: string
 }
 
-export interface GameInstance {
-
-}
-
-class GameInstanceImpl implements GameInstance {
-    private broker: Broker;
+class GameInstance {
+    private broker: Room;
     private board: Piece[][];
     private teamTurn: Team;
     private gameStatus: GameStatus;
 
-    constructor(broker: Broker) {
+    private readonly gameObservable: Observable<PieceMove>;
+
+    constructor(broker: Room) {
         this.broker = broker;
         this.teamTurn = Team.WHITE;
         this.board = initialPieces(null);
         this.gameStatus = GameStatus.Playing;
 
-        this.broker.sendMessage1(matchFound({playerTeam: Team.BLACK}));
-        this.broker.sendMessage2(matchFound({playerTeam: Team.WHITE}));
+        this.broker.getPlayer1().getSend$().next(matchFound({playerTeam: Team.BLACK}));
+        this.broker.getPlayer2().getSend$().next(matchFound({playerTeam: Team.WHITE}));
 
-        this.configurePieceMoves(Team.BLACK, Team.WHITE);
-        this.configureChat(Team.BLACK, Team.WHITE);
+        this.gameObservable = this.configurePieceMoves(Team.BLACK, Team.WHITE);
+
+        /*this.gameObservable.subscribe({
+            error: err => this.broker.broadcast({event: MESSAGES.CONNECTION_ERROR, data: null})
+        })*/
     }
 
-    private configurePieceMoves(team1: Team, team2: Team): void {
-        merge(
-            this.broker.getSubject1()
+    public getGameObservable() : Observable<PieceMove> {
+        return this.gameObservable;
+    }
+
+    private configurePieceMoves(team1: Team, team2: Team): Observable<PieceMove> {
+        return merge(
+            this.broker.getPlayer1().getReceive$()
                 .pipe(
-                    ofEvent(MESSAGES.PIECE_MOVED),
-                    pieceMoveFromSocketMessage(team1)
+                    fromTeam(team1)
                 ),
-            this.broker.getSubject2()
+            this.broker.getPlayer2().getReceive$()
                 .pipe(
-                    ofEvent(MESSAGES.PIECE_MOVED),
-                    pieceMoveFromSocketMessage(team2)
-                )
+                    fromTeam(team2)
+                ),
         ).pipe(
-            takeWhile(() => {
-                return this.gameStatus === GameStatus.Playing;
-            }),
             //Checks if was team turn
             filter((move: PieceMove) => {
                 const {team} = move;
@@ -85,35 +95,32 @@ class GameInstanceImpl implements GameInstance {
             filter((move: PieceMove) => {
                 return isMoveValid(move, this.board);
             }),
-        ).subscribe(
-            {
-                next: (validMove: PieceMove) => {
-                    this.teamTurn = changeTurn(this.teamTurn);
+            //Execute game logic
+            tap((validMove: PieceMove) => {
+                this.teamTurn = changeTurn(this.teamTurn);
 
-                    this.board = movePiece(validMove, this.board);
+                this.board = movePiece(validMove, this.board);
 
-                    this.broker.broadcast(
-                        pieceMoveToSocketMessage(validMove)
-                    );
+                this.broker.broadcast(
+                    pieceMoveToSocketMessage(validMove)
+                );
 
-                    this.gameStatus = checkGameState(validMove, this.board);
-                },
-                error: ()=>{},
-                complete: ()=>{
-                    console.log('GAME ENDED', this.gameStatus);
-                }
-            }
+                this.gameStatus = checkGameState(validMove, this.board);
+            }),
+            takeWhile(() => {
+                return this.gameStatus === GameStatus.Playing;
+            }),
         );
     }
 
     private configureChat(team1: Team, team2: Team): void {
         merge(
-            this.broker.getSubject1()
+            this.broker.getPlayer1().getReceive$()
                 .pipe(
                     ofEvent(MESSAGES.CHAT_MESSAGE),
                     chatMessageFromSocketMessage(team1)
                 ),
-            this.broker.getSubject2()
+            this.broker.getPlayer2().getReceive$()
                 .pipe(
                     ofEvent(MESSAGES.CHAT_MESSAGE),
                     chatMessageFromSocketMessage(team2)
@@ -126,4 +133,4 @@ class GameInstanceImpl implements GameInstance {
     }
 }
 
-export default GameInstanceImpl;
+export default GameInstance;

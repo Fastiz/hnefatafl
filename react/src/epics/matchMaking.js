@@ -4,7 +4,7 @@ import {FIND_MATCH, matchFound, SEND_PIECE_MOVE} from "../actions/matchMaking";
 import {from, of} from "rxjs";
 import Connection from '../websocket/connection';
 import {MATCH} from "../constants/routes";
-import {MATCH_MAKING, MATCH_FOUND, PIECE_MOVED} from '../constants/socketMessages';
+import {SM_MATCH_MAKING, SM_MATCH_FOUND, SM_PIECE_MOVED} from '../constants/socketMessages';
 import connection from "../websocket/connection";
 import {byEvent} from "./utils/byEvent";
 import {initializeGame, movePiece} from "../actions/game";
@@ -14,14 +14,14 @@ const socketMessages$ = connection.getMessageSubject();
 const findMatchEpic = action$ => action$.pipe(
     ofType(FIND_MATCH),
     switchMap(() => {
-        Connection.sendMessage({event: MATCH_MAKING});
+        Connection.sendMessage({event: SM_MATCH_MAKING});
 
         return of();
     })
 );
 
 const matchFoundEpic = (action$, state, {history}) => socketMessages$.pipe(
-    byEvent(MATCH_FOUND),
+    byEvent(SM_MATCH_FOUND),
     switchMap(message => {
         history.push(MATCH);
 
@@ -45,7 +45,7 @@ const matchFoundEpic = (action$, state, {history}) => socketMessages$.pipe(
 );
 
 const pieceMovedEpic = () => socketMessages$.pipe(
-    byEvent(PIECE_MOVED),
+    byEvent(SM_PIECE_MOVED),
     switchMap(message => {
         const {from, to} = message.data;
 
@@ -58,7 +58,7 @@ const sendPieceMove = action$ => action$.pipe(
     switchMap(action => {
         const {from, to} = action;
 
-        Connection.sendMessage({event: PIECE_MOVED, data: {from, to}})
+        Connection.sendMessage({event: SM_PIECE_MOVED, data: {from, to}})
 
         return of();
     })

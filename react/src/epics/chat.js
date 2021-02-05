@@ -1,6 +1,6 @@
 import connection from "../websocket/connection";
 import {byEvent} from "./utils/byEvent";
-import {CHAT_MESSAGE} from "../constants/socketMessages";
+import {SM_CHAT_MESSAGE} from "../constants/socketMessages";
 import {switchMap} from "rxjs/operators";
 import {of} from "rxjs";
 import {combineEpics, ofType} from "redux-observable";
@@ -10,7 +10,7 @@ import {chatMessage, SEND_CHAT_MESSAGE} from "../actions/chat";
 const socketMessages$ = connection.getMessageSubject();
 
 const messageReceived = () => socketMessages$.pipe(
-    byEvent(CHAT_MESSAGE),
+    byEvent(SM_CHAT_MESSAGE),
     switchMap(received => {
         const {from, message} = received.data;
 
@@ -23,7 +23,7 @@ const sendChatMessage = action$ => action$.pipe(
     switchMap(action => {
         const {message} = action;
 
-        Connection.sendMessage({event: CHAT_MESSAGE, data: {message}})
+        Connection.sendMessage({event: SM_CHAT_MESSAGE, data: {message}})
 
         return of();
     })

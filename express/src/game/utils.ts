@@ -1,6 +1,6 @@
-import {SocketMessage} from "../broker";
 import {ChatMessage, PieceMove} from "./gameInstance";
 import {MESSAGES} from "./constants";
+import {SocketMessage} from "../connection/Connection";
 
 export function pieceMoveToSocketMessage(move: PieceMove): SocketMessage {
     return {

@@ -1,13 +1,10 @@
 import React from 'react';
-import {Button} from 'antd';
+import {Button, Spin} from 'antd';
 import {useDispatch, useSelector} from "react-redux";
 import {findMatch} from "../actions/matchMaking";
 import styled from 'styled-components'
 import ConnectionStatus from "../components/ConnectionStatus";
-
-const mapState = state => ({
-    lookingForMatch: state.home.lookingForMatch
-});
+import _ from 'lodash';
 
 const SDiv = styled.div`
     max-width: 20rem;
@@ -23,14 +20,23 @@ const SH1 = styled.h1`
     margin-bottom: 3rem;
 `;
 
+const mapState = state => _.pick(state, ['home', 'connection']);
+
 function Home({className}){
-    const {lookingForMatch} = useSelector(mapState);
+    const {home, connection} = useSelector(mapState);
     const dispatch = useDispatch();
+
+    const {lookingForMatch} = home;
+    const {numberOfPlayers, numberOfMatches} = connection;
 
     return <div className={className}>
         <ConnectionStatus/>
         <SDiv>
             <SH1>Hnefatafl</SH1>
+
+            <p>Number of matches: {_.isNil(numberOfMatches) ? <Spin/> : numberOfMatches}</p>
+            <p>Number of players: {_.isNil(numberOfPlayers) ? <Spin/> : numberOfPlayers}</p>
+
             <SButton
                 onClick={()=>dispatch(findMatch())}
                 loading={lookingForMatch}

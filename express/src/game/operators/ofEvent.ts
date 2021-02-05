@@ -1,5 +1,5 @@
-import {filter, map} from "rxjs/operators";
-import {SocketMessage} from "../../broker";
+import {filter} from "rxjs/operators";
+import {SocketMessage} from "../../connection/Connection";
 
 export function ofEvent(event: string){
     return function(source){

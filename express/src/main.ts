@@ -1,19 +1,21 @@
-import {ConnectionManager, ConnectionManagerImpl} from "./connectionManager";
-import MatchMakingImpl, {MatchMaking} from "./matchMaking";
+import ConnectionManager from "./connectionManager";
+import MatchMaking from "./matchMaking";
+import {MESSAGES} from "./game/constants";
 
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
-const io = require('socket.io')(server, {
+export const io = require('socket.io')(server, {
     cors: {
-        origin: "http://64.227.1.4",
+        // origin: "http://64.227.1.4",
+        origin: "http://localhost:3000"
     }
 });
 
-const matchMaking: MatchMaking = new MatchMakingImpl();
-const connectionManager: ConnectionManager = new ConnectionManagerImpl(io, matchMaking);
+const connectionManager = new ConnectionManager();
 
-matchMaking.setConnManager(connectionManager);
+const matchMaking = new MatchMaking(connectionManager.getConnectionSubject());
+
 
 server.listen(8080, () => {
     console.log("Running on port 8080...")

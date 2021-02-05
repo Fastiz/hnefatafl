@@ -1,7 +1,7 @@
-import {SocketMessage} from "../../broker";
 import {map} from "rxjs/operators";
 import {Team} from "../constants";
 import {PieceMove} from "../gameInstance";
+import {SocketMessage} from "../../connection/Connection";
 
 export function pieceMoveFromSocketMessage(team: Team){
     return function(source){

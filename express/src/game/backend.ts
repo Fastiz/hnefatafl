@@ -88,8 +88,6 @@ function isAnotherAllyInLine(ally: Piece, enemy: Piece, board: Piece[][]): boole
     }
     const piece = board[otherCellPos.x][otherCellPos.y];
 
-    console.log('piece', piece);
-
     return (!_.isNil(piece) && piece.getTeam() === ally.getTeam()) ||
         (ally.getTeam() === Team.BLACK ?
                 _.isNil(piece) && isRestrictedSquare(otherCellPos, board)
