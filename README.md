@@ -1,7 +1,7 @@
 # Hnefatafl
 
 ## About
-Simple personal project for trying out the combination of typescript, sockets and rxjs.  
+Simple personal project for trying out the combination of typescript, web sockets and rxjs.  
 The project itself is for matchmaking and playing an old viking's tabletop game called 'Hnefatafl' (the one that is played in some scenes of [Vikings series](https://www.wikiwand.com/en/Vikings_(2013_TV_series))).  
 [Link to game rules](http://aagenielsen.dk/fetlar_rules_en.php)
 
